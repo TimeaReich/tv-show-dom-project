@@ -1,6 +1,10 @@
 #root {
   color: red;
 }
+.body {
+  background-color: #000;
+  color: #fff;
+}
 
 .feature {
   display: flex;
@@ -25,8 +29,11 @@
   justify-content: flex-start;
   /* width: 300px; */
 }
-.image {
-}
 .title {
+  text-align: center;
   font-size: 22px;
+}
+.container:hover {
+  box-shadow: 5px 4px 5px 4px #222;
+  background-color: #3d3d3d;
 }
