@@ -1,4 +1,8 @@
-let allEpisodes = getAllEpisodes();
+function setup() {
+  let allEpisodes = getAllEpisodes();
+  displayEpisodes(allEpisodes);
+  searchBar.addEventListener("input", filterEpisodes);
+}
 
 let body = document.querySelector("body");
 body.className = "body";
@@ -13,7 +17,7 @@ feature.className = "feature";
 let searchBar = document.createElement("input");
 searchBar.setAttribute("type", "text");
 searchBar.setAttribute("name", "search");
-searchBar.setAttribute("placeholder", "Search for series");
+searchBar.setAttribute("placeholder", "Search for series...");
 searchDiv.appendChild(searchBar);
 
 //////////////episode structure///////////
@@ -29,7 +33,7 @@ function displayEpisodes(shows) {
     container.appendChild(episodeTitle);
     episodeTitle.innerHTML = `${shows[i].name}`;
     episodeTitle.className = "title";
-
+    console.log(episodeTitle);
     //////create episode and season number//////
     let episodeNumber = document.createElement("p");
     if (shows[i].season >= 10) {
@@ -54,21 +58,25 @@ function displayEpisodes(shows) {
   }
 }
 
-displayEpisodes(allEpisodes);
-
 ////search bar event/////
 
-function filterSearch(event) {
-  let searchWord = event.target.value.toUpperCase();
-  let filteredShows = allEpisodes.filter((item) => {
+let displayMatchingText = document.createElement("p");
+function filterEpisodes(e) {
+  let allEpisodes = getAllEpisodes();
+  feature.innerHTML = "";
+  let searchWord = e.target.value.toUpperCase();
+  let filteredEpisodes = allEpisodes.filter((item) => {
     return (
       item.name.toUpperCase().includes(searchWord) ||
       item.summary.toUpperCase().includes(searchWord)
     );
   });
-  displayEpisodes(filteredShows);
+  let matchingNumber = filteredEpisodes.length;
+  let allEpisodesNumber = allEpisodes.length;
+  displayMatchingText.innerText = `Displaying ${matchingNumber}/${allEpisodesNumber} episodes`;
+  searchDiv.appendChild(displayMatchingText);
+  displayEpisodes(filteredEpisodes);
 }
-searchBar.addEventListener("input", filterSearch);
 
 /////link to TvMaze//////
 let linkToTv = document.createElement("a");
@@ -77,3 +85,5 @@ let textToTv = document.createTextNode("Source");
 linkToTv.appendChild(textToTv);
 body.appendChild(linkToTv);
 linkToTv.style.color = "white";
+
+window.onload = setup;

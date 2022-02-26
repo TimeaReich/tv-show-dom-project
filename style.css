@@ -37,3 +37,8 @@
   box-shadow: 5px 4px 5px 4px #222;
   background-color: #3d3d3d;
 }
+input[type="text"] {
+  margin: 0.5rem;
+  padding: 12px 20px;
+  border: solid 2px rgb(137, 131, 223);
+}
