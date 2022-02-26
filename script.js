@@ -36,14 +36,17 @@ function displayEpisodes(shows) {
     console.log(episodeTitle);
     //////create episode and season number//////
     let episodeNumber = document.createElement("p");
-    if (shows[i].season >= 10) {
-      if (shows[i].number >= 10) {
-        episodeNumber.innerHTML = `S${shows[i].season}E${shows[i].number}`;
-      }
-    } else {
+    if (shows[i].season >= 10 && shows[i].number >= 10) {
+      episodeNumber.innerHTML = `S${shows[i].season}E${shows[i].number}`;
+    } else if (shows[i].season >= 10 && shows[i].number < 10) {
+      episodeNumber.innerHTML = `S${shows[i].season}E0${shows[i].number}`;
+    } else if (shows[i].season < 10 && shows[i].number >= 10) {
+      episodeNumber.innerHTML = `S0${shows[i].season}E${shows[i].number}`;
+    } else if (shows[i].season < 10 && shows[i].number < 10) {
       episodeNumber.innerHTML = `S0${shows[i].season}E0${shows[i].number}`;
-      container.appendChild(episodeNumber);
     }
+    container.appendChild(episodeNumber);
+
     /////create episode image/////////
     let episodeImage = document.createElement("img");
     if (shows[i].image !== null) {
@@ -57,7 +60,6 @@ function displayEpisodes(shows) {
     container.appendChild(showSummary);
   }
 }
-
 ////search bar event/////
 
 let displayMatchingText = document.createElement("p");
@@ -71,13 +73,27 @@ function filterEpisodes(e) {
       item.summary.toUpperCase().includes(searchWord)
     );
   });
+  displayEpisodes(filteredEpisodes);
   let matchingNumber = filteredEpisodes.length;
   let allEpisodesNumber = allEpisodes.length;
   displayMatchingText.innerText = `Displaying ${matchingNumber}/${allEpisodesNumber} episodes`;
   searchDiv.appendChild(displayMatchingText);
-  displayEpisodes(filteredEpisodes);
 }
-
+///////select option//////////
+function selectEpisode(episodes) {
+  episodes = getAllEpisodes();
+  let selectElement = document.createElement("select");
+  selectElement.setAttribute("id", "mySelect");
+  searchDiv.appendChild(selectElement);
+  for (let j = 0; j < episodes.length; j++) {
+    let optionElement = document.createElement("option");
+    optionElement.setAttribute("value", `${episodes[j].name}`);
+    let optionText = document.createTextNode(`${episodes[j].name}`);
+    optionElement.appendChild(optionText);
+    selectElement.appendChild(optionElement);
+  }
+}
+selectEpisode();
 /////link to TvMaze//////
 let linkToTv = document.createElement("a");
 linkToTv.href = "https://www.tvmaze.com/";
