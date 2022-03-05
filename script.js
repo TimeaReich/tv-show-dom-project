@@ -1,7 +1,8 @@
 let allEpisodesArray = [];
 
-function getAllEpisodesApi() {
-  return fetch("https://api.tvmaze.com/shows/82/episodes")
+function getAllEpisodesApi(showId) {
+  let showUrl = `https://api.tvmaze.com/shows/${showId}/episodes`;
+  return fetch(showUrl)
     .then((response) => response.json())
     .then((data) => {
       allEpisodesArray = data;
@@ -10,9 +11,18 @@ function getAllEpisodesApi() {
     })
     .catch((e) => console.log(e));
 }
-
+function getAllShowsApi() {
+  fetch("https://api.tvmaze.com/shows")
+    .then((res) => res.json())
+    .then((data) => {
+      allSeries = data;
+      selectSeries(data);
+    })
+    .catch((e) => console.log(e));
+}
 function setup() {
-  getAllEpisodesApi();
+  getAllShowsApi();
+  getAllEpisodesApi(82);
   searchBar.addEventListener("input", filterEpisodes);
 }
 
@@ -24,8 +34,7 @@ let feature = document.createElement("div");
 body.append(feature);
 feature.className = "feature";
 
-/////////search bar///////////
-
+/////////create search bar///////////
 let searchBar = document.createElement("input");
 searchBar.setAttribute("type", "text");
 searchBar.setAttribute("name", "search");
@@ -40,7 +49,6 @@ function displayEpisodes(shows) {
     let container = document.createElement("div");
     feature.appendChild(container);
     container.className = "container";
-
     /////create title//////
     let episodeTitle = document.createElement("p");
     container.appendChild(episodeTitle);
@@ -59,7 +67,6 @@ function displayEpisodes(shows) {
       episodeNumber.innerHTML = `S0${shows[i].season}E0${shows[i].number}`;
     }
     container.appendChild(episodeNumber);
-
     /////create episode image/////////
     let episodeImage = document.createElement("img");
     if (shows[i].image !== null) {
@@ -73,9 +80,8 @@ function displayEpisodes(shows) {
     container.appendChild(showSummary);
   }
 }
-////search bar event/////
-
 let displayMatchingText = document.createElement("p");
+////search bar event/////
 function filterEpisodes(e) {
   feature.innerHTML = "";
   let searchWord = e.target.value.toUpperCase();
@@ -90,11 +96,13 @@ function filterEpisodes(e) {
   let allEpisodesNumber = allEpisodesArray.length;
   displayMatchingText.innerText = `Displaying ${matchingNumber}/${allEpisodesNumber} episodes`;
   searchDiv.appendChild(displayMatchingText);
+  displayMatchingText.className = "matching-episodes-p";
 }
-///////select option//////////
+///////select option for episodes//////////
 function selectEpisode() {
   let selectElement = document.createElement("select");
-  selectElement.setAttribute("id", "mySelect");
+  selectElement.innerHTML = "";
+  selectElement.setAttribute("id", "selectEpisodes");
   searchDiv.appendChild(selectElement);
   selectElement.className = "form-field";
   for (let j = 0; j < allEpisodesArray.length; j++) {
@@ -109,7 +117,33 @@ function selectEpisode() {
     window.location.href = `#${event.target.value}`;
   });
 }
-
+//////////////select option for series//////////////////
+function selectSeries(series) {
+  let selectSeriesEl = document.createElement("select");
+  selectSeriesEl.setAttribute("id", "selectSeries");
+  searchDiv.appendChild(selectSeriesEl);
+  selectSeriesEl.className = "form-field";
+  for (let j = 0; j < series.length; j++) {
+    let optionElement = document.createElement("option");
+    optionElement.setAttribute("value", `${series[j].name}`);
+    let optionText = document.createTextNode(`${series[j].name}`);
+    optionElement.appendChild(optionText);
+    selectSeriesEl.appendChild(optionElement);
+  }
+  selectSeriesEl.addEventListener("click", function (event) {
+    feature.innerHTML = "";
+    let selectedShowName = event.target.value;
+    let selectedShowId;
+    for (let z = 0; z < series.length; z++) {
+      if (selectedShowName === series[z].name) {
+        selectedShowId = series[z].id;
+        console.log(selectedShowId);
+      }
+    }
+    getAllEpisodesApi(selectedShowId);
+  });
+  //console.log(series[0].id);
+}
 /////link to TvMaze//////
 let linkToTv = document.createElement("a");
 linkToTv.href = "https://www.tvmaze.com/";
