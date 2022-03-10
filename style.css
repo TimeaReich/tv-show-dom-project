@@ -32,9 +32,12 @@
 /* input[type="text"] */
 .form-field {
   margin: 0.5rem;
-  padding: 12px 20px;
+  padding: 12px 8px;
   border: solid 3px #9e7e41;
 }
-.matching-episodes-p {
-  display: inline;
+.search-div-box {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-around;
 }
