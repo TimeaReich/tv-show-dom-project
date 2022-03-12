@@ -1,3 +1,29 @@
+let body = document.querySelector("body");
+body.className = "body";
+let searchDiv = document.createElement("div");
+body.appendChild(searchDiv);
+searchDiv.className = "search-div-box";
+let feature = document.createElement("div");
+body.append(feature);
+feature.className = "feature";
+let searchBarDiv = document.createElement("div");
+searchDiv.appendChild(searchBarDiv);
+let selectEpisodeDiv = document.createElement("div");
+selectEpisodeDiv.className = "selectEpisodeDiv";
+searchDiv.appendChild(selectEpisodeDiv);
+let selectSeriesDiv = document.createElement("div");
+selectSeriesDiv.className = "selectSeriesDiv";
+searchDiv.appendChild(selectSeriesDiv);
+let navBackButtonDiv = document.createElement("div");
+navBackButtonDiv.className = "back-button-div";
+
+/////////create search bar///////////
+let searchBar = document.createElement("input");
+searchBar.setAttribute("type", "text");
+searchBar.setAttribute("name", "search");
+searchBar.setAttribute("placeholder", "Search for...");
+searchBarDiv.appendChild(searchBar);
+searchBar.className = "form-field";
 let allEpisodesArray = [];
 
 function getAllEpisodesApi(showId) {
@@ -26,10 +52,11 @@ function setup() {
   selectSeries(allShows);
   //getAllShowsApi();
   showListing(allShows);
-  getAllEpisodesApi(82);
+  getAllEpisodesApi();
   searchBar.addEventListener("input", filterEpisodes);
 }
 function showListing(shows) {
+  selectEpisodeDiv.style.display = "none";
   for (let i = 0; i < shows.length; i++) {
     let container = document.createElement("div");
     feature.appendChild(container);
@@ -63,37 +90,32 @@ function showListing(shows) {
     container.appendChild(showGenre);
     ///rating
     let showRating = document.createElement("p");
-    console.log(shows[0].rating.average);
     showRating.innerHTML = `Show Rating: ${shows[i].rating.average}`;
     container.appendChild(showRating);
     ///runtime
     let showRuntime = document.createElement("p");
     showRuntime.innerHTML = `Runtime: ${shows[i].runtime}`;
     container.appendChild(showRuntime);
+
+    container.addEventListener("click", function () {
+      feature.innerHTML = "";
+      selectSeriesDiv.innerHTML = "";
+      let selectedShowId = shows[i].id;
+      let navigateBackButton = document.createElement("button");
+      navigateBackButton.innerHTML = "Back to showlist";
+      navigateBackButton.className = "back-button";
+      navBackButtonDiv.appendChild(navigateBackButton);
+      searchDiv.appendChild(navBackButtonDiv);
+      navigateBackButton.addEventListener("click", function () {
+        feature.innerHTML = "";
+        setup();
+        navBackButtonDiv.innerHTML = "";
+      });
+
+      getAllEpisodesApi(selectedShowId);
+    });
   }
 }
-let body = document.querySelector("body");
-body.className = "body";
-let searchDiv = document.createElement("div");
-body.appendChild(searchDiv);
-searchDiv.className = "search-div-box";
-let feature = document.createElement("div");
-body.append(feature);
-feature.className = "feature";
-let searchBarDiv = document.createElement("div");
-searchDiv.appendChild(searchBarDiv);
-let selectEpisodeDiv = document.createElement("div");
-searchDiv.appendChild(selectEpisodeDiv);
-let selectSeriesDiv = document.createElement("div");
-searchDiv.appendChild(selectSeriesDiv);
-
-/////////create search bar///////////
-let searchBar = document.createElement("input");
-searchBar.setAttribute("type", "text");
-searchBar.setAttribute("name", "search");
-searchBar.setAttribute("placeholder", "Search for episodes...");
-searchBarDiv.appendChild(searchBar);
-searchBar.className = "form-field";
 
 //////////////episode structure///////////
 
@@ -142,6 +164,7 @@ function filterEpisodes(e) {
   console.log(allEpisodesArray);
 
   let filteredEpisodes = allEpisodesArray.filter((item) => {
+    console.log(item.summary);
     return (
       item.name.toUpperCase().includes(searchWord) ||
       item.summary.toUpperCase().includes(searchWord)
@@ -169,7 +192,6 @@ function selectEpisode() {
     selectEpisodeEl.appendChild(optionElement);
   }
   selectEpisodeEl.addEventListener("change", function (event) {
-    selectedEpId = document.getElementById(`${event.target.value}`);
     window.location.href = `#${event.target.value}`;
   });
 }
@@ -199,8 +221,19 @@ function selectSeries(series) {
   }
   selectSeriesEl.addEventListener("click", function (event) {
     feature.innerHTML = "";
+    selectSeriesDiv.innerHTML = "";
+    selectEpisodeDiv.style.display = "block";
+    let navigateBackButton = document.createElement("button");
+    navigateBackButton.innerHTML = "Back to showlist";
+    navigateBackButton.className = "back-button";
+    navBackButtonDiv.appendChild(navigateBackButton);
+    searchDiv.appendChild(navBackButtonDiv);
+    navigateBackButton.addEventListener("click", function () {
+      feature.innerHTML = "";
+      setup();
+      navBackButtonDiv.innerHTML = "";
+    });
 
-    // selectEpisode;
     let selectedShowName = event.target.value;
     let selectedShowId;
     for (let z = 0; z < series.length; z++) {
