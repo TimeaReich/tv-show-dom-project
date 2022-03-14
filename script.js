@@ -6,24 +6,34 @@ searchDiv.className = "search-div-box";
 let feature = document.createElement("div");
 body.append(feature);
 feature.className = "feature";
-let searchBarDiv = document.createElement("div");
-searchDiv.appendChild(searchBarDiv);
+let searchBarForEpisodesDiv = document.createElement("div");
+searchDiv.appendChild(searchBarForEpisodesDiv);
 let selectEpisodeDiv = document.createElement("div");
 selectEpisodeDiv.className = "selectEpisodeDiv";
 searchDiv.appendChild(selectEpisodeDiv);
+let navBackButtonDiv = document.createElement("div");
+navBackButtonDiv.className = "back-button-div";
 let selectSeriesDiv = document.createElement("div");
 selectSeriesDiv.className = "selectSeriesDiv";
 searchDiv.appendChild(selectSeriesDiv);
-let navBackButtonDiv = document.createElement("div");
-navBackButtonDiv.className = "back-button-div";
+let matchingTextDiv = document.createElement("div");
+searchDiv.appendChild(matchingTextDiv);
 
-/////////create search bar///////////
-let searchBar = document.createElement("input");
-searchBar.setAttribute("type", "text");
-searchBar.setAttribute("name", "search");
-searchBar.setAttribute("placeholder", "Search for...");
-searchBarDiv.appendChild(searchBar);
-searchBar.className = "form-field";
+/////////create search bar for episodes ///////////
+let searchBarForEpisodes = document.createElement("input");
+searchBarForEpisodes.setAttribute("type", "text");
+searchBarForEpisodes.setAttribute("name", "search");
+searchBarForEpisodes.setAttribute("placeholder", "Search episodes...");
+searchBarForEpisodesDiv.appendChild(searchBarForEpisodes);
+searchBarForEpisodes.className = "form-field";
+//////create searchbar for shows////////
+let searchBarForShows = document.createElement("input");
+searchBarForShows.setAttribute("type", "text");
+searchBarForShows.setAttribute("name", "search");
+searchBarForShows.setAttribute("placeholder", "Search for show...");
+searchBarForEpisodesDiv.appendChild(searchBarForShows);
+searchBarForShows.className = "form-field";
+
 let allEpisodesArray = [];
 
 function getAllEpisodesApi(showId) {
@@ -52,8 +62,9 @@ function setup() {
   selectSeries(allShows);
   //getAllShowsApi();
   showListing(allShows);
-  getAllEpisodesApi();
-  searchBar.addEventListener("input", filterEpisodes);
+  // getAllEpisodesApi();
+  searchBarForEpisodes.addEventListener("input", filterEpisodes);
+  searchBarForShows.addEventListener("input", filterShows);
 }
 function showListing(shows) {
   selectEpisodeDiv.style.display = "none";
@@ -77,17 +88,22 @@ function showListing(shows) {
     container.appendChild(episodeImage);
     /////create summary///////
     let showSummary = document.createElement("p");
+    filterShows;
     showSummary.innerHTML = `${shows[i].summary}`;
     container.appendChild(showSummary);
     ///genre///
     let showGenre = document.createElement("p");
     if (shows[i].genres.length > 1) {
       let showGenreStr = shows[i].genres.toString();
-      showGenre.innerHTML = `${showGenreStr}`;
+      showGenre.innerHTML = `Genre: ${showGenreStr}`;
     } else {
       showGenre.innerHTML = `Genre: ${shows[i].genres[0]}`;
     }
     container.appendChild(showGenre);
+    ////status
+    let showStatus = document.createElement("div");
+    showStatus.innerHTML = `Status: ${shows[i].status}`;
+    container.appendChild(showStatus);
     ///rating
     let showRating = document.createElement("p");
     showRating.innerHTML = `Show Rating: ${shows[i].rating.average}`;
@@ -110,15 +126,14 @@ function showListing(shows) {
         feature.innerHTML = "";
         setup();
         navBackButtonDiv.innerHTML = "";
+        matchingTextDiv.style.display = "none";
       });
-
       getAllEpisodesApi(selectedShowId);
     });
   }
 }
 
 //////////////episode structure///////////
-
 function displayEpisodes(shows) {
   for (let i = 0; i < shows.length; i++) {
     let container = document.createElement("div");
@@ -156,32 +171,53 @@ function displayEpisodes(shows) {
   }
 }
 let displayMatchingText = document.createElement("p");
-////search bar event/////
+displayMatchingText.className = "matching-text-p";
+
+/////search bar for shows event/////
+function filterShows(e) {
+  feature.innerHTML = "";
+  if (e.target.value !== "") {
+    let allShows = getAllShows();
+    let searchWord = e.target.value.toUpperCase();
+    console.log(typeof e.target.value);
+    let filteredEpisodes = allShows.filter((item) => {
+      return (
+        item.name.toUpperCase().includes(searchWord) ||
+        item.summary.toUpperCase().includes(searchWord)
+      );
+    });
+    displayEpisodes(filteredEpisodes);
+  } else {
+    setup();
+  }
+}
+
+////search bar for episodes event/////
 function filterEpisodes(e) {
   feature.innerHTML = "";
-  let searchWord = e.target.value.toUpperCase();
-  console.log(searchWord);
   console.log(allEpisodesArray);
-
+  let searchWord = e.target.value.toUpperCase();
   let filteredEpisodes = allEpisodesArray.filter((item) => {
-    console.log(item.summary);
-    return (
-      item.name.toUpperCase().includes(searchWord) ||
-      item.summary.toUpperCase().includes(searchWord)
-    );
+    if (item.summary !== null) {
+      return (
+        item.name.toUpperCase().includes(searchWord) ||
+        item.summary.toUpperCase().includes(searchWord)
+      );
+    } else if (item.summary === null) {
+      return item.name.toUpperCase().includes(searchWord);
+    }
   });
   displayEpisodes(filteredEpisodes);
+  matchingTextDiv.style.display = "block";
   let matchingNumber = filteredEpisodes.length;
   let allEpisodesNumber = allEpisodesArray.length;
   displayMatchingText.innerText = `Displaying ${matchingNumber}/${allEpisodesNumber} episodes`;
-  searchDiv.appendChild(displayMatchingText);
+  matchingTextDiv.appendChild(displayMatchingText);
 }
 ///////select option for episodes//////////
 function selectEpisode() {
   selectEpisodeDiv.innerHTML = "";
   let selectEpisodeEl = document.createElement("select");
-
-  //selectElement.setAttribute("id", "selectEpisodes");
   selectEpisodeDiv.appendChild(selectEpisodeEl);
   selectEpisodeEl.className = "form-field";
   for (let j = 0; j < allEpisodesArray.length; j++) {
@@ -197,6 +233,7 @@ function selectEpisode() {
 }
 //////////////select option for series//////////////////
 function selectSeries(series) {
+  selectSeriesDiv.innerHTML = "";
   let selectSeriesEl = document.createElement("select");
   selectSeriesEl.setAttribute("id", "selectSeries");
   selectSeriesDiv.appendChild(selectSeriesEl);
@@ -254,3 +291,4 @@ body.appendChild(linkToTv);
 linkToTv.style.color = "white";
 
 window.onload = setup;
+//solution https://cyf-tv-level-500-dom-solution.netlify.app/
